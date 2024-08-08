@@ -31,3 +31,7 @@ D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\obj\Debug\net7.0\refint\Pro
 D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\obj\Debug\net7.0\Proyecto_API.pdb
 D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\obj\Debug\net7.0\Proyecto_API.genruntimeconfig.cache
 D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\obj\Debug\net7.0\ref\Proyecto_API.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Newtonsoft.Json.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Newtonsoft.Json.Bson.dll

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Proyecto_API.Data;
 using Proyecto_API.Modelos;
@@ -115,6 +116,30 @@ namespace Proyecto_API.Controllers
             instrumentos.Descripcion = instrumentosDto.Descripcion;
 
             return NoContent();
-        } 
+        }
+
+        //HTTP PATCH
+
+        [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
+        public IActionResult UpdatePartialInstrumento(int id, JsonPatchDocument<InstrumentosDto> patchDto)
+        {
+            if (patchDto == null || id == 0)
+            {
+                return BadRequest();
+            }
+            var instrumentos = InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id);
+
+            patchDto.ApplyTo(instrumentos, ModelState);
+            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return NoContent();
+        }
     }
 }
