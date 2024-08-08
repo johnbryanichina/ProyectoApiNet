@@ -25,11 +25,11 @@ namespace Proyecto_API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<InstrumentosDto>> GetInstruments()
+        public async Task<ActionResult<IEnumerable<InstrumentosDto>>> GetInstruments()
         {
             _logger.LogInformation("Obtener Instrumentos");
             //return Ok(InstrumentosStore.instrumentosList);
-            return Ok(_db.instrumentos.ToList());
+            return Ok(await _db.instrumentos.ToListAsync());
         }
 
         /*GET INSTRUMENTS BY ID*/
@@ -39,7 +39,7 @@ namespace Proyecto_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         
-        public ActionResult<InstrumentosDto> GetInstrumentsById(int id)
+        public async Task<ActionResult<InstrumentosDto>> GetInstrumentsById(int id)
         {
             if (id == 0)
             {
@@ -48,7 +48,7 @@ namespace Proyecto_API.Controllers
             }
 
             //var instrumentos = Ok(InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id));
-            var instrumentos = Ok(_db.instrumentos.FirstOrDefault(i => i.id == id));
+            var instrumentos = await _db.instrumentos.FirstOrDefaultAsync(i => i.id == id);
 
             if (instrumentos == null)
             {
@@ -63,13 +63,13 @@ namespace Proyecto_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public ActionResult<InstrumentosDto> AgregarInstrumento([FromBody] InstrumentosDto instrumentosDto)
+        public async Task<ActionResult<InstrumentosDto>> AgregarInstrumento([FromBody] InstrumentosCreateDto instrumentosDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (_db.instrumentos.FirstOrDefault(i => i.nombre.ToLower() == instrumentosDto.nombre.ToLower()) != null)
+            if ( await _db.instrumentos.FirstOrDefaultAsync(i => i.nombre.ToLower() == instrumentosDto.nombre.ToLower()) != null)
             {
                 ModelState.AddModelError("Instrumento existente", "El instrumento que usted quiere agregar ya existe!");
                 return BadRequest(ModelState);
@@ -79,10 +79,7 @@ namespace Proyecto_API.Controllers
             {
                 return BadRequest(instrumentosDto);
             }
-            if (instrumentosDto.id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+           
             instrumentos modelo = new()
             {
                 nombre = instrumentosDto.nombre,
@@ -91,10 +88,10 @@ namespace Proyecto_API.Controllers
                 cantidad = instrumentosDto.cantidad,
                 imagenUrl = instrumentosDto.imagenUrl,
             };
-            _db.instrumentos.Add(modelo);
-            _db.SaveChanges();
+            await _db.instrumentos.AddAsync(modelo);
+            await _db.SaveChangesAsync();
 
-            return CreatedAtRoute("GetInstrumentos", new { id = instrumentosDto.id }, instrumentosDto);
+            return CreatedAtRoute("GetInstrumentos", new { id = modelo.id }, modelo);
         }
         /*DELETE INSTRUMENTS*/
 
@@ -103,19 +100,21 @@ namespace Proyecto_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
-        public IActionResult EliminarInstrumento(int id) {
+        public async Task<IActionResult> EliminarInstrumento(int id){
             if (id == 0)
             {
                 return BadRequest();
 
             }
-            var instrumento = _db.instrumentos.FirstOrDefault(i => i.id == id);
+            var instrumento = await _db.instrumentos.FirstOrDefaultAsync(i => i.id == id);
+
             if (instrumento == null)
             {
                 return NotFound();
             }
+
             _db.instrumentos.Remove(instrumento);
-            _db.SaveChanges();
+           await _db.SaveChangesAsync();
 
             return NoContent();
         }
@@ -125,8 +124,7 @@ namespace Proyecto_API.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-       
-        public IActionResult ActualizarInstrumento(int id, [FromBody] InstrumentosDto instrumentosDto)
+        public async Task<IActionResult> ActualizarInstrumento(int id, [FromBody] InstrumentosUpdateDto instrumentosDto)
         {
             if (instrumentosDto== null || id != instrumentosDto.id)
             {
@@ -148,7 +146,7 @@ namespace Proyecto_API.Controllers
                 imagenUrl = instrumentosDto.imagenUrl,
             };
             _db.instrumentos.Update(modelo);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return NoContent();
         }
 
@@ -158,14 +156,14 @@ namespace Proyecto_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public IActionResult UpdatePartialInstrumento(int id, JsonPatchDocument<InstrumentosDto> patchDto)
+        public async Task<IActionResult> UpdatePartialInstrumento(int id, JsonPatchDocument<InstrumentosUpdateDto> patchDto)
         {
             if (patchDto == null || id == 0)
             {
                 return BadRequest();
             }
-            var instrumento = _db.instrumentos.AsNoTracking().FirstOrDefault(i => i.id == id);
-            InstrumentosDto instrumentoDto = new()
+            var instrumento = await _db.instrumentos.AsNoTracking().FirstOrDefaultAsync(i => i.id == id);
+            InstrumentosUpdateDto instrumentoDto = new()
             {
                 id = instrumento.id,
                 nombre = instrumento.nombre,
@@ -191,7 +189,7 @@ namespace Proyecto_API.Controllers
                 precio = instrumentoDto.precio,
             };
             _db.instrumentos.Update(modelo);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return NoContent();
         }
     }
