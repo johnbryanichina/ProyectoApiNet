@@ -13,12 +13,18 @@ namespace Proyecto_API.Controllers
     [ApiController]
     public class InstrumentsController : ControllerBase
     {
+        private readonly ILogger<InstrumentsController> _logger;
+        public InstrumentsController(ILogger<InstrumentsController> logger)
+        {
+           _logger = logger;
+        }
         /*GET INSTRUMENTS*/
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<InstrumentosDto>> GetInstruments()
         {
+            _logger.LogInformation("Obtener Instrumentos");
             return Ok(InstrumentosStore.instrumentosList);
         }
 
@@ -33,6 +39,7 @@ namespace Proyecto_API.Controllers
         {
             if (id == 0)
             {
+                _logger.LogError("Error al obtener el instrumento con el id "+id);
                 return BadRequest();
             }
 
