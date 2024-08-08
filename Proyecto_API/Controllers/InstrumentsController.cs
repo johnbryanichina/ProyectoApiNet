@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Proyecto_API.Data;
 using Proyecto_API.Modelos;
 using Proyecto_API.Modelos.Dto;
@@ -14,9 +15,11 @@ namespace Proyecto_API.Controllers
     public class InstrumentsController : ControllerBase
     {
         private readonly ILogger<InstrumentsController> _logger;
-        public InstrumentsController(ILogger<InstrumentsController> logger)
+        private readonly ApplicationDbContext _db;
+        public InstrumentsController(ILogger<InstrumentsController> logger, ApplicationDbContext db)
         {
            _logger = logger;
+            _db = db;
         }
         /*GET INSTRUMENTS*/
 
@@ -25,7 +28,8 @@ namespace Proyecto_API.Controllers
         public ActionResult<IEnumerable<InstrumentosDto>> GetInstruments()
         {
             _logger.LogInformation("Obtener Instrumentos");
-            return Ok(InstrumentosStore.instrumentosList);
+            //return Ok(InstrumentosStore.instrumentosList);
+            return Ok(_db.instrumentos.ToList());
         }
 
         /*GET INSTRUMENTS BY ID*/
@@ -43,7 +47,8 @@ namespace Proyecto_API.Controllers
                 return BadRequest();
             }
 
-            var instrumentos = Ok(InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id));
+            //var instrumentos = Ok(InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id));
+            var instrumentos = Ok(_db.instrumentos.FirstOrDefault(i => i.id == id));
 
             if (instrumentos == null)
             {
@@ -64,7 +69,7 @@ namespace Proyecto_API.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Nombre.ToLower() == instrumentosDto.Nombre.ToLower()) != null)
+            if (_db.instrumentos.FirstOrDefault(i => i.nombre.ToLower() == instrumentosDto.nombre.ToLower()) != null)
             {
                 ModelState.AddModelError("Instrumento existente", "El instrumento que usted quiere agregar ya existe!");
                 return BadRequest(ModelState);
@@ -74,14 +79,22 @@ namespace Proyecto_API.Controllers
             {
                 return BadRequest(instrumentosDto);
             }
-            if (instrumentosDto.Id > 0)
+            if (instrumentosDto.id > 0)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            instrumentosDto.Id = InstrumentosStore.instrumentosList.OrderByDescending(i => i.Id).FirstOrDefault().Id + 1;
-            InstrumentosStore.instrumentosList.Add(instrumentosDto);
+            instrumentos modelo = new()
+            {
+                nombre = instrumentosDto.nombre,
+                descripcion = instrumentosDto.descripcion,
+                precio = instrumentosDto.precio,
+                cantidad = instrumentosDto.cantidad,
+                imagenUrl = instrumentosDto.imagenUrl,
+            };
+            _db.instrumentos.Add(modelo);
+            _db.SaveChanges();
 
-            return CreatedAtRoute("GetInstrumentos", new { id = instrumentosDto.Id }, instrumentosDto);
+            return CreatedAtRoute("GetInstrumentos", new { id = instrumentosDto.id }, instrumentosDto);
         }
         /*DELETE INSTRUMENTS*/
 
@@ -96,12 +109,13 @@ namespace Proyecto_API.Controllers
                 return BadRequest();
 
             }
-            var instrumento = InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id);
+            var instrumento = _db.instrumentos.FirstOrDefault(i => i.id == id);
             if (instrumento == null)
             {
                 return NotFound();
             }
-            InstrumentosStore.instrumentosList.Remove(instrumento);
+            _db.instrumentos.Remove(instrumento);
+            _db.SaveChanges();
 
             return NoContent();
         }
@@ -114,14 +128,27 @@ namespace Proyecto_API.Controllers
        
         public IActionResult ActualizarInstrumento(int id, [FromBody] InstrumentosDto instrumentosDto)
         {
-            if (instrumentosDto== null || id != instrumentosDto.Id)
+            if (instrumentosDto== null || id != instrumentosDto.id)
             {
                 return BadRequest();
             }
-            var instrumentos = InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id);
-            instrumentos.Nombre = instrumentosDto.Nombre;
-            instrumentos.Descripcion = instrumentosDto.Descripcion;
+            /*var instrumentos = InstrumentosStore.instrumentosList.FirstOrDefault(i => i.id == id);
+            instrumentos.nombre = instrumentosDto.nombre;
+           instrumentos.descripcion = instrumentosDto.descripcion;
+           instrumentos.nombre = instrumentosDto.nombre;
+           instrumentos.cantidad = instrumentosDto.cantidad;
+           instrumentos.imagenUrl = instrumentosDto.imagenUrl;*/
 
+            instrumentos modelo = new()
+            {
+                id = instrumentosDto.id,
+                nombre = instrumentosDto.nombre,
+                descripcion = instrumentosDto.descripcion,
+                cantidad = instrumentosDto.cantidad,
+                imagenUrl = instrumentosDto.imagenUrl,
+            };
+            _db.instrumentos.Update(modelo);
+            _db.SaveChanges();
             return NoContent();
         }
 
@@ -137,15 +164,34 @@ namespace Proyecto_API.Controllers
             {
                 return BadRequest();
             }
-            var instrumentos = InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id);
+            var instrumento = _db.instrumentos.AsNoTracking().FirstOrDefault(i => i.id == id);
+            InstrumentosDto instrumentoDto = new()
+            {
+                id = instrumento.id,
+                nombre = instrumento.nombre,
+                descripcion = instrumento.descripcion,
+                cantidad = instrumento.cantidad,
+                precio = instrumento.precio,
+            };
+            if (instrumento == null) return BadRequest();
 
-            patchDto.ApplyTo(instrumentos, ModelState);
-            
+            patchDto.ApplyTo(instrumentoDto, ModelState);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            instrumentos modelo = new()
+            {
+                id = instrumentoDto.id,
+                nombre = instrumentoDto.nombre,
+                descripcion = instrumentoDto.descripcion,
+                cantidad = instrumentoDto.cantidad,
+                precio = instrumentoDto.precio,
+            };
+            _db.instrumentos.Update(modelo);
+            _db.SaveChanges();
             return NoContent();
         }
     }

@@ -4,12 +4,16 @@ namespace Proyecto_API.Modelos.Dto
 {
     public class InstrumentosDto
     {
-        public int Id { get; set; }
+        public int id { get; set; }
         [Required]
         [MaxLength(50)]
 
-        public string Nombre { get; set; }
-        [MaxLength(100)]
-        public string Descripcion { get; set; }
+        public string nombre { get; set; }
+
+        public string descripcion { get; set; }
+        public double precio { get; set; }
+        public int cantidad { get; set; }
+        public string imagenUrl { get; set; }
+       
     }
 }

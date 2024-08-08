@@ -6,8 +6,8 @@ namespace Proyecto_API.Data
     {
         public static List<InstrumentosDto> instrumentosList = new List<InstrumentosDto>()
         {
-            new InstrumentosDto { Id = 1,Nombre="Guitarra",Descripcion="Guitarra color café con cuerdas de metal"},
-            new InstrumentosDto { Id = 2,Nombre="Saxofon",Descripcion="Saxofon alto color negro Yamaha"}
+            new InstrumentosDto { id = 1,nombre="Guitarra",descripcion="Guitarra color café con cuerdas de metal"},
+            new InstrumentosDto { id = 2,nombre="Saxofon",descripcion="Saxofon alto color negro Yamaha"}
             
         };    
     }

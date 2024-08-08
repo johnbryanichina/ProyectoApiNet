@@ -35,3 +35,13 @@ D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.
 D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Newtonsoft.Json.dll
 D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Newtonsoft.Json.Bson.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Humanizer.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Design.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Relational.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Microsoft.Extensions.DependencyModel.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Mono.TextTemplating.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Npgsql.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+D:\Aplicacion\Curso de NETCore\Proyecto\Proyecto_API\bin\Debug\net7.0\System.CodeDom.dll
