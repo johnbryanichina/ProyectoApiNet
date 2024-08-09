@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Proyecto_API.Data;
 using Proyecto_API.Modelos;
 using Proyecto_API.Modelos.Dto;
@@ -16,31 +15,33 @@ namespace Proyecto_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InstrumentsController : ControllerBase
+
+    public class NumeroInstrumentsController : ControllerBase
     {
-        private readonly ILogger<InstrumentsController> _logger;
+        private readonly ILogger<NumeroInstrumentsController> _logger;
         private readonly IInstrumentosRepositorio _instrumentosRepo;
+        private readonly INumeroInstrumentosRepositorio _numeroRepo;
+
         private readonly IMapper _mapper;
         protected APIResponse _response;
-        public InstrumentsController(ILogger<InstrumentsController> logger, IInstrumentosRepositorio instrumentosRepo, IMapper mapper)
+        public NumeroInstrumentsController(ILogger<NumeroInstrumentsController> logger, IInstrumentosRepositorio instrumentosRepo, INumeroInstrumentosRepositorio numeroRepo, IMapper mapper)
         {
             _logger = logger;
             _instrumentosRepo = instrumentosRepo;
+            _numeroRepo = numeroRepo;
             _mapper = mapper;
             _response = new();
         }
-        /*GET INSTRUMENTS*/
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetInstruments()
+        public async Task<ActionResult<APIResponse>> GetNumeroInstrumentos()
         {
             try
             {
-                _logger.LogInformation("Obtener Instrumentos");
-                IEnumerable<instrumentos> instrumentosList = await _instrumentosRepo.ObtenerTodos();
-                //return Ok(InstrumentosStore.instrumentosList);
-                _response.Resultado = _mapper.Map<IEnumerable<InstrumentosDto>>(instrumentosList);
+                _logger.LogInformation("Obtener número Instrumentos");
+                IEnumerable<numero_instrumentos> numeroinstrumentosList = await _numeroRepo.ObtenerTodos();
+                _response.Resultado = _mapper.Map<IEnumerable<NumeroInstrumentoDto>>(numeroinstrumentosList);
                 _response.statusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -53,55 +54,52 @@ namespace Proyecto_API.Controllers
 
         }
 
-        /*GET INSTRUMENTS BY ID*/
-
-        [HttpGet("{id:int}", Name = "GetInstrumentos")]
+        [HttpGet("{id:int}", Name = "GetNumeroInstrumentos")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
-        public async Task<ActionResult<InstrumentosDto>> GetInstrumentsById(int id)
+        public async Task<ActionResult<NumeroInstrumentoDto>> GetNumeroInstrumentsById(int id)
         {
             try
             {
                 if (id == 0)
                 {
-                    _logger.LogError("Error al obtener el instrumento con el id " + id);
+                    _logger.LogError("Error al obtener el numero de instrumento con el id " + id);
                     _response.statusCode = HttpStatusCode.BadRequest;
                     _response.IsExitoso = false;
                     return BadRequest(_response);
                 }
 
                 //var instrumentos = Ok(InstrumentosStore.instrumentosList.FirstOrDefault(i => i.Id == id));
-                var instrumentos = await _instrumentosRepo.Obtener(i => i.id == id);
+                var numeroinstrumentos = await _numeroRepo.Obtener(i => i.instrumento_no == id);
 
-                if (instrumentos == null)
+                if (numeroinstrumentos == null)
                 {
                     _response.statusCode = HttpStatusCode.NotFound;
                     _response.IsExitoso = false;
                     return NotFound(_response);
                 }
 
-                _response.Resultado = _mapper.Map<InstrumentosDto>(instrumentos);
+                _response.Resultado = _mapper.Map<NumeroInstrumentoDto>(numeroinstrumentos);
                 _response.statusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
             catch (Exception ex)
             {
                 _response.IsExitoso = false;
-                //Envia una lista de errores
                 _response.ErrorMessages = new List<string>() { ex.ToString() };
             }
 
             return Ok(_response);
         }
-        /*POST INSTRUMENTS*/
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult<APIResponse>> AgregarInstrumento([FromBody] InstrumentosCreateDto createDto)
+        public async Task<ActionResult<APIResponse>> CrearNumeroInstrumento([FromBody] NumeroInstrumentoDto createDto)
         {
             try
             {
@@ -109,26 +107,32 @@ namespace Proyecto_API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if (await _instrumentosRepo.Obtener(i => i.nombre.ToLower() == createDto.nombre.ToLower()) != null)
+                if (await _numeroRepo.Obtener(i => i.instrumento_no == createDto.instrumento_no) != null)
                 {
-                    ModelState.AddModelError("Instrumento con nombre existente", "El instrumento con ese nombre ya existe!");
+                    ModelState.AddModelError("Instrumento existente", "El numero de instrumento que usted quiere agregar ya existe!");
                     return BadRequest(ModelState);
 
+                }
+                if (await _instrumentosRepo.Obtener(i => i.id == createDto.instrumento_id) == null)
+                {
+                    ModelState.AddModelError("ClaveForanea", "El ID de ese instrumento no existe!");
+                    return BadRequest(ModelState);
                 }
                 if (createDto == null)
                 {
                     return BadRequest(createDto);
                 }
 
-                instrumentos modelo = _mapper.Map<instrumentos>(createDto);
+                numero_instrumentos modelo = _mapper.Map<numero_instrumentos>(createDto);
 
                 modelo.fecha_creacion = DateTimeOffset.UtcNow;
                 modelo.fecha_actualizacion = DateTimeOffset.UtcNow;
-                await _instrumentosRepo.Crear(modelo);
+                await _numeroRepo.Crear(modelo);
+
                 _response.Resultado = modelo;
                 _response.statusCode = HttpStatusCode.Created;
 
-                return CreatedAtRoute("GetInstrumentos", new { id = modelo.id }, _response);
+                return CreatedAtRoute("GetInstrumentos", new { id = modelo.instrumento_no }, _response);
             }
             catch (Exception ex)
             {
@@ -137,14 +141,13 @@ namespace Proyecto_API.Controllers
             }
             return _response;
         }
-        /*DELETE INSTRUMENTS*/
 
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
-        public async Task<IActionResult> EliminarInstrumento(int id)
+        public async Task<IActionResult> EliminarNumeroInstrumento(int id)
         {
             try
             {
@@ -155,15 +158,15 @@ namespace Proyecto_API.Controllers
                     return BadRequest(_response);
 
                 }
-                var instrumento = await _instrumentosRepo.Obtener(i => i.id == id);
-                if (instrumento == null)
+                var numeroinstrumento = await _numeroRepo.Obtener(i => i.instrumento_no == id);
+                if (numeroinstrumento == null)
                 {
                     _response.IsExitoso = false;
                     _response.statusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
 
-                await _instrumentosRepo.Remover(instrumento);
+                await _numeroRepo.Remover(numeroinstrumento);
                 _response.statusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
             }
@@ -175,54 +178,28 @@ namespace Proyecto_API.Controllers
             return BadRequest(_response);
         }
 
-        /*PUT INSTRUMENTS*/
 
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ActualizarInstrumento(int id, [FromBody] InstrumentosUpdateDto updateDto)
+        public async Task<IActionResult> ActualizarNumeroInstrumento(int id, [FromBody] NumeroInstrumentoUpdateDto updateDto)
         {
-            if (updateDto == null || id != updateDto.id)
+            if (updateDto == null || id != updateDto.instrumento_no)
             {
                 _response.IsExitoso = false;
                 _response.statusCode = HttpStatusCode.BadRequest;
                 return BadRequest(_response);
             }
-
-
-            instrumentos modelo = _mapper.Map<instrumentos>(updateDto);
-
-            await _instrumentosRepo.Actualizar(modelo);
-            return Ok(_response);
-        }
-
-        //HTTP PATCH
-
-        [HttpPatch("{id:int}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
-        public async Task<IActionResult> UpdatePartialInstrumento(int id, JsonPatchDocument<InstrumentosUpdateDto> patchDto)
-        {
-            if (patchDto == null || id == 0)
+            if (await _instrumentosRepo.Obtener(i => i.id == updateDto.instrumento_id) == null)
             {
-                return BadRequest();
-            }
-            var instrumento = await _instrumentosRepo.Obtener(i => i.id == id, tracked: false);
-
-            InstrumentosUpdateDto instrumentoDto = _mapper.Map<InstrumentosUpdateDto>(instrumento);
-            if (instrumento == null) return BadRequest();
-
-            patchDto.ApplyTo(instrumentoDto, ModelState);
-
-            if (!ModelState.IsValid)
-            {
+                ModelState.AddModelError("ClaveForanea", "El Id del instrumento No existe!");
                 return BadRequest(ModelState);
             }
-            instrumentos modelo = _mapper.Map<instrumentos>(instrumentoDto);
 
-            await _instrumentosRepo.Actualizar(modelo);
-            _response.statusCode = HttpStatusCode.NoContent;
+
+            numero_instrumentos modelo = _mapper.Map<numero_instrumentos>(updateDto);
+
+            await _numeroRepo.Actualizar(modelo);
             return Ok(_response);
         }
     }

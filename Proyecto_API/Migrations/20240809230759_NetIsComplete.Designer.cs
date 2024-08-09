@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Proyecto_API.Data;
@@ -11,9 +12,11 @@ using Proyecto_API.Data;
 namespace ProyectoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240809230759_NetIsComplete")]
+    partial class NetIsComplete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,8 +67,8 @@ namespace ProyectoAPI.Migrations
                             id = 1,
                             cantidad = 10,
                             descripcion = "Guitarra color café con cuerdas de metal",
-                            fechaactualizacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 12, 37, 65, DateTimeKind.Unspecified).AddTicks(6209), new TimeSpan(0, 0, 0, 0, 0)),
-                            fechacreacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 12, 37, 65, DateTimeKind.Unspecified).AddTicks(6204), new TimeSpan(0, 0, 0, 0, 0)),
+                            fechaactualizacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 7, 59, 304, DateTimeKind.Unspecified).AddTicks(7392), new TimeSpan(0, 0, 0, 0, 0)),
+                            fechacreacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 7, 59, 304, DateTimeKind.Unspecified).AddTicks(7391), new TimeSpan(0, 0, 0, 0, 0)),
                             imagenurl = "",
                             nombre = "Guitarra",
                             precio = 5.0
@@ -75,8 +78,8 @@ namespace ProyectoAPI.Migrations
                             id = 2,
                             cantidad = 5,
                             descripcion = "Saxofon alto color negro Yamaha yas 23",
-                            fechaactualizacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 12, 37, 65, DateTimeKind.Unspecified).AddTicks(6211), new TimeSpan(0, 0, 0, 0, 0)),
-                            fechacreacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 12, 37, 65, DateTimeKind.Unspecified).AddTicks(6211), new TimeSpan(0, 0, 0, 0, 0)),
+                            fechaactualizacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 7, 59, 304, DateTimeKind.Unspecified).AddTicks(7394), new TimeSpan(0, 0, 0, 0, 0)),
+                            fechacreacion = new DateTimeOffset(new DateTime(2024, 8, 9, 23, 7, 59, 304, DateTimeKind.Unspecified).AddTicks(7394), new TimeSpan(0, 0, 0, 0, 0)),
                             imagenurl = "",
                             nombre = "Saxofon",
                             precio = 10.5
@@ -105,18 +108,18 @@ namespace ProyectoAPI.Migrations
 
                     b.HasIndex("instrumento_id");
 
-                    b.ToTable("numero_instrumentos");
+                    b.ToTable("numeroInstrumentos");
                 });
 
             modelBuilder.Entity("Proyecto_API.Modelos.numero_instrumentos", b =>
                 {
-                    b.HasOne("Proyecto_API.Modelos.instrumentos", "instrumentos")
+                    b.HasOne("Proyecto_API.Modelos.instrumentos", "instrumento")
                         .WithMany()
                         .HasForeignKey("instrumento_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("instrumentos");
+                    b.Navigation("instrumento");
                 });
 #pragma warning restore 612, 618
         }

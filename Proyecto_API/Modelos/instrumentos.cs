@@ -12,8 +12,8 @@ namespace Proyecto_API.Modelos
         public string descripcion { get;set; }
         public double precio { get; set; }
         public int cantidad { get; set; }
-        public string imagenUrl { get; set; }
-        public DateTimeOffset fechaCreacion { get; set; }
-        public DateTimeOffset fechaActualizacion { get; set; }
+        public string imagen_url { get; set; }
+        public DateTimeOffset fecha_creacion { get; set; }
+        public DateTimeOffset fecha_actualizacion { get; set; }
     }
 }

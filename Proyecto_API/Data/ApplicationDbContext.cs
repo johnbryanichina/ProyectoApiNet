@@ -11,6 +11,7 @@ namespace Proyecto_API.Data
 
         }
         public DbSet<instrumentos> instrumentos { get; set; }
+        public DbSet<numero_instrumentos> numero_instrumentos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,9 +23,9 @@ namespace Proyecto_API.Data
                     descripcion= "Guitarra color café con cuerdas de metal",
                     precio=5,
                     cantidad=10,
-                    imagenUrl="",
-                    fechaCreacion=DateTimeOffset.UtcNow,
-                    fechaActualizacion= DateTimeOffset.Now,
+                    imagen_url="",
+                    fecha_creacion=DateTimeOffset.UtcNow,
+                    fecha_actualizacion= DateTimeOffset.UtcNow,
                 },
                  new instrumentos()
                  {
@@ -33,9 +34,9 @@ namespace Proyecto_API.Data
                      descripcion = "Saxofon alto color negro Yamaha yas 23",
                      precio = 10.50,
                      cantidad = 5,
-                     imagenUrl = "",
-                     fechaCreacion = DateTimeOffset.Now,
-                     fechaActualizacion = DateTimeOffset.Now,
+                     imagen_url = "",
+                     fecha_creacion = DateTimeOffset.UtcNow,
+                     fecha_actualizacion = DateTimeOffset.UtcNow,
                  });
             
         }

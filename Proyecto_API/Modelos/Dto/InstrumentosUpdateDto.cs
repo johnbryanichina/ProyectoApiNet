@@ -17,7 +17,7 @@ namespace Proyecto_API.Modelos.Dto
         [Required]
         public int cantidad { get; set; }
         [Required]
-        public string imagenUrl { get; set; }
+        public string imagen_url { get; set; }
        
     }
 }

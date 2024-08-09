@@ -13,6 +13,10 @@ namespace Proyecto_API
 
             CreateMap<instrumentos, InstrumentosCreateDto>().ReverseMap();
             CreateMap<instrumentos, InstrumentosUpdateDto>().ReverseMap();
+
+            CreateMap<numero_instrumentos, NumeroInstrumentoDto>().ReverseMap();
+            CreateMap<numero_instrumentos, NumeroInstrumentoCreateDto>().ReverseMap();
+            CreateMap<numero_instrumentos, NumeroInstrumentoUpdateDto>().ReverseMap();
         }
     }
 }

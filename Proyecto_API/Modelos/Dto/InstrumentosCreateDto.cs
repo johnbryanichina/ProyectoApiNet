@@ -12,7 +12,7 @@ namespace Proyecto_API.Modelos.Dto
         public string descripcion { get; set; }
         public double precio { get; set; }
         public int cantidad { get; set; }
-        public string imagenUrl { get; set; }
+        public string imagen_url { get; set; }
        
     }
 }
