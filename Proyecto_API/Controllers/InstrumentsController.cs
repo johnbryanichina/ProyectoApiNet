@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,12 @@ namespace Proyecto_API.Controllers
     {
         private readonly ILogger<InstrumentsController> _logger;
         private readonly ApplicationDbContext _db;
-        public InstrumentsController(ILogger<InstrumentsController> logger, ApplicationDbContext db)
+        private readonly IMapper _mapper;
+        public InstrumentsController(ILogger<InstrumentsController> logger, ApplicationDbContext db, IMapper mapper)
         {
            _logger = logger;
             _db = db;
+            _mapper = mapper;
         }
         /*GET INSTRUMENTS*/
 
@@ -28,8 +31,9 @@ namespace Proyecto_API.Controllers
         public async Task<ActionResult<IEnumerable<InstrumentosDto>>> GetInstruments()
         {
             _logger.LogInformation("Obtener Instrumentos");
+            IEnumerable<instrumentos> instrumentosList = await _db.instrumentos.ToListAsync();
             //return Ok(InstrumentosStore.instrumentosList);
-            return Ok(await _db.instrumentos.ToListAsync());
+            return Ok(_mapper.Map<IEnumerable<InstrumentosDto>>(instrumentosList));
         }
 
         /*GET INSTRUMENTS BY ID*/
@@ -55,7 +59,7 @@ namespace Proyecto_API.Controllers
                 return NotFound();
             }
 
-            return Ok(instrumentos);
+            return Ok(_mapper.Map<InstrumentosDto>(instrumentos));
         }
         /*POST INSTRUMENTS*/
         [HttpPost]
@@ -63,31 +67,25 @@ namespace Proyecto_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult<InstrumentosDto>> AgregarInstrumento([FromBody] InstrumentosCreateDto instrumentosDto)
+        public async Task<ActionResult<InstrumentosDto>> AgregarInstrumento([FromBody] InstrumentosCreateDto createDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if ( await _db.instrumentos.FirstOrDefaultAsync(i => i.nombre.ToLower() == instrumentosDto.nombre.ToLower()) != null)
+            if ( await _db.instrumentos.FirstOrDefaultAsync(i => i.nombre.ToLower() == createDto.nombre.ToLower()) != null)
             {
                 ModelState.AddModelError("Instrumento existente", "El instrumento que usted quiere agregar ya existe!");
                 return BadRequest(ModelState);
 
             }
-            if (instrumentosDto == null)
+            if (createDto == null)
             {
-                return BadRequest(instrumentosDto);
+                return BadRequest(createDto);
             }
            
-            instrumentos modelo = new()
-            {
-                nombre = instrumentosDto.nombre,
-                descripcion = instrumentosDto.descripcion,
-                precio = instrumentosDto.precio,
-                cantidad = instrumentosDto.cantidad,
-                imagenUrl = instrumentosDto.imagenUrl,
-            };
+            instrumentos modelo = _mapper.Map<instrumentos>(createDto);
+             
             await _db.instrumentos.AddAsync(modelo);
             await _db.SaveChangesAsync();
 
@@ -106,6 +104,7 @@ namespace Proyecto_API.Controllers
                 return BadRequest();
 
             }
+
             var instrumento = await _db.instrumentos.FirstOrDefaultAsync(i => i.id == id);
 
             if (instrumento == null)
@@ -124,27 +123,16 @@ namespace Proyecto_API.Controllers
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ActualizarInstrumento(int id, [FromBody] InstrumentosUpdateDto instrumentosDto)
+        public async Task<IActionResult> ActualizarInstrumento(int id, [FromBody] InstrumentosUpdateDto updateDto)
         {
-            if (instrumentosDto== null || id != instrumentosDto.id)
+            if (updateDto== null || id != updateDto.id)
             {
                 return BadRequest();
             }
-            /*var instrumentos = InstrumentosStore.instrumentosList.FirstOrDefault(i => i.id == id);
-            instrumentos.nombre = instrumentosDto.nombre;
-           instrumentos.descripcion = instrumentosDto.descripcion;
-           instrumentos.nombre = instrumentosDto.nombre;
-           instrumentos.cantidad = instrumentosDto.cantidad;
-           instrumentos.imagenUrl = instrumentosDto.imagenUrl;*/
+         
 
-            instrumentos modelo = new()
-            {
-                id = instrumentosDto.id,
-                nombre = instrumentosDto.nombre,
-                descripcion = instrumentosDto.descripcion,
-                cantidad = instrumentosDto.cantidad,
-                imagenUrl = instrumentosDto.imagenUrl,
-            };
+            instrumentos modelo = _mapper.Map<instrumentos>(updateDto);
+
             _db.instrumentos.Update(modelo);
             await _db.SaveChangesAsync();
             return NoContent();
@@ -163,14 +151,10 @@ namespace Proyecto_API.Controllers
                 return BadRequest();
             }
             var instrumento = await _db.instrumentos.AsNoTracking().FirstOrDefaultAsync(i => i.id == id);
-            InstrumentosUpdateDto instrumentoDto = new()
-            {
-                id = instrumento.id,
-                nombre = instrumento.nombre,
-                descripcion = instrumento.descripcion,
-                cantidad = instrumento.cantidad,
-                precio = instrumento.precio,
-            };
+
+            InstrumentosUpdateDto instrumentoDto = _mapper.Map<InstrumentosUpdateDto>(instrumento);
+
+             
             if (instrumento == null) return BadRequest();
 
             patchDto.ApplyTo(instrumentoDto, ModelState);
@@ -179,15 +163,8 @@ namespace Proyecto_API.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            instrumentos modelo = new()
-            {
-                id = instrumentoDto.id,
-                nombre = instrumentoDto.nombre,
-                descripcion = instrumentoDto.descripcion,
-                cantidad = instrumentoDto.cantidad,
-                precio = instrumentoDto.precio,
-            };
+            instrumentos modelo = _mapper.Map<instrumentos>(instrumentoDto);
+             
             _db.instrumentos.Update(modelo);
             await _db.SaveChangesAsync();
             return NoContent();
